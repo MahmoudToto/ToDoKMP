@@ -21,9 +21,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import domain.ToDoTask
-import org.jetbrains.compose.resources.painterResource
-import todokmp.composeapp.generated.resources.Res
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun TaskView(
     task: ToDoTask,
@@ -61,9 +61,12 @@ fun TaskView(
         }
         ) {
             Icon(
-                imageVector = if (showActive) Icons.Filled.Star else Icons.Filled.Star,
+                if (showActive) Icons.Default.Star
+                else  Icons.Default.Delete,
                 contentDescription = "Favorite Icon",
-                tint = if (task.favorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                tint = if (task.favorite) MaterialTheme.colorScheme.primary else MaterialTheme.
+                colorScheme.onSurface.copy(
+                    alpha = 0.38f)
             )
         }
 

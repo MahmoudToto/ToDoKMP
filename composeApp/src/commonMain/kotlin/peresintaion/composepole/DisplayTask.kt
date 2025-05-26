@@ -28,90 +28,90 @@ fun DisplayTasks(
     modifier: Modifier = Modifier,
     tasks: RequestState<List<ToDoTask>>,
     showActive: Boolean = true,
-    onSelect: ((ToDoTask) -> Unit)? =null,
+    onSelect: ((ToDoTask) -> Unit)? = null,
     onFavorite: ((ToDoTask, Boolean) -> Unit)? = null,
-    onCompleted: (ToDoTask, Boolean) -> Unit,
-    onDeleted: ((ToDoTask) -> Unit)? = null,
-){
+    onComplete: (ToDoTask, Boolean) -> Unit,
+    onDelete: ((ToDoTask) -> Unit)? = null
+) {
     var showDialog by remember { mutableStateOf(false) }
     var taskToDelete: ToDoTask? by remember { mutableStateOf(null) }
-    if (showDialog){
-        taskToDelete?.let { task ->
-            AlertDialog(
-                title = {
-                    Text(text = "Delete", fontSize = MaterialTheme.typography.bodyMedium.fontSize)
-                },
-                text = {
-                    Text(
-                        text = "Are you sure you want to delete this task?'${task.title}'",
-                        fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                    )
-                },
-                confirmButton = {
-                    Button(onClick = {
-                        onDeleted?.invoke(taskToDelete!!)
-                        showDialog = false
-                        taskToDelete = null
-                    }) {
-                        Text(text = "Yes")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            taskToDelete = null
-                            showDialog = false
-                        }
-                    ){
-                        Text(text = "Cancel")
-                    }
-                },
-                onDismissRequest = {
-                    taskToDelete = null
-                    showDialog = false
-                }
-            )
-        }
 
-        Column(modifier = Modifier.fillMaxWidth()){
-            Text(modifier = Modifier.padding(horizontal = 12.dp),
-                text = if (showActive)"Active Tasks" else "Completed Tasks",
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            tasks.DisplayResult(
-                onLoading = { LoadingScreen() },
-                onError = { ErrorScreen(massage = it) },
-                onSuccess = {
-                    if (it.isEmpty()){
-                        LazyColumn(
-                            modifier = Modifier.padding(horizontal = 24.dp)){
-                            items(
-                                items = it,
-                                key = { task -> task.id }
-                            ){     task ->
-                                TaskView(
-                                    showActive = showActive,
-                                    task = task,
-                                    onSelect = { onSelect?.invoke(it) },
-                                    onCompleted = { selectedTask, completed ->
-                                        onCompleted(selectedTask, completed)
-                                    },
-                                    onFavorite = { selectedTask, favorite ->
-                                        onFavorite?.invoke(selectedTask, favorite)
-                                    },
-                                    onDelete = { selectedTask ->
-                                        taskToDelete = selectedTask
-                                        showDialog = true
-                                    }) }
+    if (showDialog) {
+        AlertDialog(
+            title = {
+                Text(text = "Delete", fontSize = MaterialTheme.typography.titleLarge.fontSize)
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to remove '${taskToDelete!!.title}' task?",
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    onDelete?.invoke(taskToDelete!!)
+                    showDialog = false
+                    taskToDelete = null
+                }) {
+                    Text(text = "Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        taskToDelete = null
+                        showDialog = false
+                    }
+                ) {
+                    Text(text = "Cancel")
+                }
+            },
+            onDismissRequest = {
+                taskToDelete = null
+                showDialog = false
+            }
+        )
+    }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            text = if (showActive) "Active Tasks" else "Completed Tasks",
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        tasks.DisplayResult(
+            onLoading = { LoadingScreen() },
+            onError = { ErrorScreen(massage = it) },
+            onSuccess = {
+                if (it.isNotEmpty()) {
+                    LazyColumn(modifier = Modifier.padding(horizontal = 24.dp)) {
+                        items(
+                            items = it,
+                            key = { task -> task._id.toHexString() }
+                        ) { task ->
+                            TaskView(
+                                showActive = showActive,
+                                task = task,
+                                onSelect = { onSelect?.invoke(task) },
+                                onCompleted = { selectedTask, completed ->
+                                    onComplete(selectedTask, completed)
+                                },
+                                onFavorite = { selectedTask, favorite ->
+                                    onFavorite?.invoke(selectedTask, favorite)
+                                },
+                                onDelete = { selectedTask ->
+                                    taskToDelete = selectedTask
+                                    showDialog = true
+                                }
+                            )
                         }
                     }
-                    else {
-                        ErrorScreen()
-                    }
+                } else {
+                    ErrorScreen()
                 }
-            )
-        }
+            }
+        )
     }
 }
