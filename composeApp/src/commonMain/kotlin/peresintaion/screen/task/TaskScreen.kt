@@ -1,9 +1,10 @@
 package peresintaion.screen.task
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -12,7 +13,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,10 +31,11 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import domain.TaskAction
 import domain.ToDoTask
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import viewmodels.TaskViewModel
 
-const val DEFAULT_TITLE = "Enter the Title"
-const val DEFAULT_DESCRIPTION = "Add some description"
+const val DEFAULT_TITLE = ""
+const val DEFAULT_DESCRIPTION = ""
 
 data class TaskScreen(val task: ToDoTask? = null) : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -45,19 +49,20 @@ data class TaskScreen(val task: ToDoTask? = null) : Screen {
         var currentDescription by remember {
             mutableStateOf(task?.description ?: DEFAULT_DESCRIPTION)
         }
-
         Scaffold(
             topBar = {
                 TopAppBar(
+                    modifier = Modifier.height(72.dp),
                     title = {
-                        BasicTextField(
+                        OutlinedTextField(
                             textStyle = TextStyle(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = MaterialTheme.typography.titleLarge.fontSize
                             ),
                             singleLine = true,
                             value = currentTitle,
-                            onValueChange = { currentTitle = it }
+                            onValueChange = { currentTitle = it },
+                            label = { Text(text = "Enter the Title") }
                         )
                     },
                     navigationIcon = {
@@ -70,43 +75,46 @@ data class TaskScreen(val task: ToDoTask? = null) : Screen {
                     }
                 )
             },
+
             floatingActionButton = {
-                if (currentTitle.isNotEmpty() && currentDescription.isNotEmpty()) {
-                    FloatingActionButton(
-                        onClick = {
-                            if (task != null) {
-                                viewModel.setAction(
-                                    action = TaskAction.Update(
-                                        ToDoTask().apply {
-                                            _id = task._id
-                                            title = currentTitle
-                                            description = currentDescription
-                                        }
-                                    )
+                /* if (currentTitle.isNotEmpty() && currentDescription.isNotEmpty()) {
+
+               }*/
+                FloatingActionButton(
+                    onClick = {
+                        if (task != null) {
+                            viewModel.setAction(
+                                action = TaskAction.Update(
+                                    ToDoTask().apply {
+                                        _id = task._id
+                                        title = currentTitle
+                                        description = currentDescription
+                                    }
                                 )
-                            } else {
-                                viewModel.setAction(
-                                    action = TaskAction.Add(
-                                        ToDoTask().apply {
-                                            title = currentTitle
-                                            description = currentDescription
-                                        }
-                                    )
+                            )
+                        } else {
+                            viewModel.setAction(
+                                action = TaskAction.Add(
+                                    ToDoTask().apply {
+                                        title = currentTitle
+                                        description = currentDescription
+                                    }
                                 )
-                            }
-                            navigator.pop()
-                        },
-                        shape = RoundedCornerShape(size = 12.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Checkmark Icon"
-                        )
-                    }
+                            )
+                        }
+                        navigator.pop()
+                    },
+                    shape = RoundedCornerShape(size = 12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Checkmark Icon"
+                    )
                 }
+
             }
         ) { padding ->
-            BasicTextField(
+            OutlinedTextField(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(all = 24.dp)
@@ -119,7 +127,8 @@ data class TaskScreen(val task: ToDoTask? = null) : Screen {
                     color = MaterialTheme.colorScheme.onSurface
                 ),
                 value = currentDescription,
-                onValueChange = { description -> currentDescription = description }
+                onValueChange = { description -> currentDescription = description },
+                label = { Text(text = "Add some description") }
             )
         }
     }
